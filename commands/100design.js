@@ -3,11 +3,10 @@ import template from '../templates/100design.js'
 
 export default async (event) => {
   try {
-    // 從 API 獲取資料
     const { data } = await axios.get('https://www.100.com.tw/v1/web_article')
     const weeklyHotTopics = data.data.weekly_hot_topic
 
-    // 確認 weeklyHotTopics 是否存在並且是數組
+    // 確認 weeklyHotTopics 是否有並且是數列
     if (!Array.isArray(weeklyHotTopics)) {
       throw new Error('Invalid data format from API')
     }
@@ -15,7 +14,7 @@ export default async (event) => {
     // 只取前五筆資料
     const topFiveArticles = weeklyHotTopics.slice(0, 5)
 
-    // 將獲取到的資料映射到模板
+    // 將獲取資料to template
     const replies = topFiveArticles.map(d => {
       const t = template()
       t.body.contents[0].url = d.cover_img
@@ -25,7 +24,6 @@ export default async (event) => {
       return t
     })
 
-    // 回覆格式化的資料
     const result = await event.reply({
       type: 'flex',
       altText: '本週熱門文章',
@@ -35,15 +33,12 @@ export default async (event) => {
       }
     })
 
-    // 如果啟用調試，記錄結果
     if (process.env.DEBUG === 'true') {
       console.log(result)
     }
   } catch (error) {
-    // 記錄錯誤
     console.error('Error fetching or processing data:', error)
 
-    // 回覆錯誤消息
     try {
       await event.reply('發生錯誤')
     } catch (replyError) {
